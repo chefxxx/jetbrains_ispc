@@ -14,6 +14,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ------------------------------------------------------------------------------ #
+#                                Compile options                                 #
+# ------------------------------------------------------------------------------ #
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(ISPC_FLAGS -O0 --math-lib=default)
+    set(CXX_COMPILE_FLAGS -g -fsanitize=undefined -fsanitize=address -O0 -Wall -Wextra -pedantic -Werror)
+else()
+    set(ISPC_FLAGS -O2 --math-lib=fast)
+    set(CXX_COMPILE_FLAGS -O3 -march=native -funroll-loops)
+endif()
+
+# ------------------------------------------------------------------------------ #
 #                                 ISPC setup                                     #
 # ------------------------------------------------------------------------------ #
 
@@ -23,12 +35,6 @@ set(ISPC_HEADERS "")
 
 file(MAKE_DIRECTORY ${ISPC_BUILD_DIR})
 file(GLOB ISPC_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/ispc/*.ispc")
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(ISPC_FLAGS -O0 --math-lib=default)
-else()
-    set(ISPC_FLAGS -O2 --math-lib=fast)
-endif()
 
 foreach (ISPC_FILE ${ISPC_SOURCES})
     get_filename_component(ISPC_NAME ${ISPC_FILE} NAME_WE)
@@ -74,3 +80,4 @@ target_include_directories(${ISPC_LIB} PUBLIC ${ISPC_BUILD_DIR})
 add_executable(${EXEC_NAME} main.cpp)
 add_dependencies(${EXEC_NAME} ${ISPC_LIB})
 target_link_libraries(${EXEC_NAME} PUBLIC ${ISPC_LIB})
+target_compile_options(${EXEC_NAME} PUBLIC ${CXX_COMPILE_FLAGS})
