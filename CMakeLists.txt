@@ -17,33 +17,41 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #                                 ISPC setup                                     #
 # ------------------------------------------------------------------------------ #
 
-set(ISPC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ispc)
 set(ISPC_BUILD_DIR ${PROJECT_BINARY_DIR}/include_ispc)
+set(ISPC_OBJECTS "")
+set(ISPC_HEADERS "")
 
 file(MAKE_DIRECTORY ${ISPC_BUILD_DIR})
+file(GLOB ISPC_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/ispc/*.ispc")
 
-set(ISPC_FILE "test")
-set(ISPC_SOURCE ${ISPC_FILE}.ispc)
-set(ISPC_HEADER ${ISPC_FILE}.h)
-set(ISPC_OBJECT ${ISPC_FILE}.o)
+foreach (ISPC_FILE ${ISPC_SOURCES})
+    get_filename_component(ISPC_NAME ${ISPC_FILE} NAME_WE)
+    set(ISPC_HEADER ${ISPC_NAME}.h)
+    set(ISPC_OBJECT ${ISPC_NAME}.o)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(ISPC_COMPILE_OPTIONS "-O0" )
-elseif ()
-    set(ISPC_COMPILE_OPTIONS "-O2" )
-endif ()
+    if (APPLE OR UNIX)
+        add_custom_command(
+                OUTPUT ${PROJECT_BINARY_DIR}/${ISPC_OBJECT} ${ISPC_BUILD_DIR}/${ISPC_HEADER}
+                COMMAND ispc ${ISPC_FILE}
+                        --header-outfile=${ISPC_BUILD_DIR}/${ISPC_HEADER}
+                        -o ${PROJECT_BINARY_DIR}/${ISPC_OBJECT}
+                        $<$<CONFIG:Debug>:-O0>
+                        $<$<CONFIG:Release>:-O2>
+                DEPENDS ${ISPC_FILE}
+        )
+    endif (APPLE OR UNIX)
 
-if (APPLE OR UNIX)
-    add_custom_command(
-            OUTPUT ${PROJECT_BINARY_DIR}/${ISPC_OBJECT} ${PROJECT_BINARY_DIR}/include/${ISPC_HEADER}
-            COMMAND ispc ${CMAKE_CURRENT_SOURCE_DIR}/${ISPC_SOURCE} --header-outfile=${PROJECT_BINARY_DIR}/include/${ISPC_HEADER} -o ${PROJECT_BINARY_DIR}/${ISPC_OBJECT} ${ISPC_COMPILE_OPTIONS}
-            DEPENDS ${ISPC_SOURCE}
-    )
-endif (APPLE OR UNIX)
+    list(APPEND ISPC_HEADERS ${ISPC_BUILD_DIR}/${ISPC_HEADER})
+    list(APPEND ISPC_OBJECTS ${PROJECT_BINARY_DIR}/${ISPC_OBJECT})
+endforeach ()
+
+# ------------------------------------------------------------------------------ #
+#                          Build static lib from ispc                            #
+# ------------------------------------------------------------------------------ #
 
 # Make a library from the results of the ispc compilation
 add_library(${ISPC_LIB} STATIC
-            ${ISPC_OBJECT})
+            ${ISPC_OBJECTS})
 
 # Set the linker language to C so the linker knows how to link
 SET_TARGET_PROPERTIES(
@@ -52,11 +60,12 @@ SET_TARGET_PROPERTIES(
         LINKER_LANGUAGE C
 )
 
+target_include_directories(${ISPC_LIB} PUBLIC ${ISPC_BUILD_DIR})
+
 # ------------------------------------------------------------------------------ #
 #                           Define exec and link                                 #
 # ------------------------------------------------------------------------------ #
 
 add_executable(${EXEC_NAME} main.cpp)
 add_dependencies(${EXEC_NAME} ${ISPC_LIB})
-target_include_directories(${EXEC_NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)
-target_link_libraries(${EXEC_NAME} ${ISPC_LIB})
+target_link_libraries(${EXEC_NAME} PUBLIC ${ISPC_LIB})
