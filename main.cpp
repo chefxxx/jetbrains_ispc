@@ -18,23 +18,13 @@ const std::string argOpt = "--n=";
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 1024;
 constexpr int BUF_N = WIDTH * HEIGHT;
-//constexpr int MAX_ITERS = 256;
+constexpr int MAX_ITERS = 256;
+constexpr float X_MIN = -2.5f;
+constexpr float X_MAX = 1.0f;
+constexpr float Y_MIN = -2.0f;
+constexpr float Y_MAX = 1.0f;
 
-struct Roots {
-    float* real;
-    float* imag;
-    int size;
-};
-
-struct rootsDeleter {
-    void operator()(Roots* r) const noexcept {
-        delete[] r->real;
-        delete[] r->imag;
-        delete r;
-    }
-};
-
-void initRoots(const Roots* ptr) {
+void initRoots(const ispc::Roots* ptr) {
     for (int k = 0; k < ptr->size; ++k) {
         const float angle = M_PI * 2.0f * k / ptr->size;
         ptr->real[k] = cos(angle);
@@ -61,15 +51,16 @@ int main (const int argc, const char **argv) {
         usage(argv[0]);
     }
 
-    std::unique_ptr<int[]> buf(new int[BUF_N]);
-    constexpr rootsDeleter deleter;
-    const std::unique_ptr<Roots, rootsDeleter> roots(new Roots, deleter);
-    roots->imag = new float[n];
-    roots->real = new float[n];
-    roots->size = n;
-    initRoots(roots.get());
+    const std::unique_ptr<int[]> buf(new int[BUF_N]);
+    Roots roots{};
+    roots.imag = new float[n];
+    roots.real = new float[n];
+    roots.size = n;
+    initRoots(&roots);
 
-    newton_ispc();
+    newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, roots ,buf.get());
 
+    delete[] roots.real;
+    delete[] roots.imag;
     return EXIT_SUCCESS;
 }
