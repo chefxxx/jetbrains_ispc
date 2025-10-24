@@ -17,13 +17,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #                                Compile options                                 #
 # ------------------------------------------------------------------------------ #
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(ISPC_FLAGS -O0 --math-lib=default)
-    set(CXX_COMPILE_FLAGS -g -fsanitize=undefined -fsanitize=address -O0 -Wall -Wextra -pedantic -Werror)
-else()
-    set(ISPC_FLAGS -O2 --math-lib=fast)
-    set(CXX_COMPILE_FLAGS -O3 -march=native -funroll-loops)
-endif()
+if (APPLE OR UNIX)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(ISPC_FLAGS -O0 --math-lib=default)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=undefined,address -O0 -Wall -Wextra -pedantic -Werror")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address,undefined")
+    else()
+        set(ISPC_FLAGS -O2 --math-lib=fast)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -funroll-loops")
+    endif()
+endif (APPLE OR UNIX)
 
 # ------------------------------------------------------------------------------ #
 #                                 ISPC setup                                     #
@@ -80,4 +83,3 @@ target_include_directories(${ISPC_LIB} PUBLIC ${ISPC_BUILD_DIR})
 add_executable(${EXEC_NAME} main.cpp)
 add_dependencies(${EXEC_NAME} ${ISPC_LIB})
 target_link_libraries(${EXEC_NAME} PUBLIC ${ISPC_LIB})
-target_compile_options(${EXEC_NAME} PUBLIC ${CXX_COMPILE_FLAGS})

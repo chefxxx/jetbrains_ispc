@@ -5,6 +5,8 @@
 #include <string>
 #include <cstdlib>
 
+#include "newton.h"
+
 #define ERR(source) (perror(source), fprintf(stderr, "%s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE))
 void usage(const char *pname)
 {
@@ -16,7 +18,7 @@ const std::string argOpt = "--n=";
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 1024;
 constexpr int BUF_N = WIDTH * HEIGHT;
-constexpr int MAX_ITERS = 256;
+//constexpr int MAX_ITERS = 256;
 
 struct Roots {
     float* real;
@@ -39,6 +41,8 @@ void initRoots(const Roots* ptr) {
         ptr->imag[k] = sin(angle);
     }
 }
+
+using namespace ispc;
 
 int main (const int argc, const char **argv) {
     // ---------
@@ -64,8 +68,8 @@ int main (const int argc, const char **argv) {
     roots->real = new float[n];
     roots->size = n;
     initRoots(roots.get());
-    for (int i = 0; i < roots->size; ++i) {
-        std::cout << "(" << roots->real[i] << ", " << roots->imag[i] << ")" << "\n";
-    }
+
+    newton_ispc();
+
     return EXIT_SUCCESS;
 }
