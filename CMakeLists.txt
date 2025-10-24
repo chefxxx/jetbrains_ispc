@@ -24,6 +24,12 @@ set(ISPC_HEADERS "")
 file(MAKE_DIRECTORY ${ISPC_BUILD_DIR})
 file(GLOB ISPC_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/ispc/*.ispc")
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(ISPC_FLAGS -O0 --math-lib=default)
+else()
+    set(ISPC_FLAGS -O2 --math-lib=fast)
+endif()
+
 foreach (ISPC_FILE ${ISPC_SOURCES})
     get_filename_component(ISPC_NAME ${ISPC_FILE} NAME_WE)
     set(ISPC_HEADER ${ISPC_NAME}.h)
@@ -35,8 +41,7 @@ foreach (ISPC_FILE ${ISPC_SOURCES})
                 COMMAND ispc ${ISPC_FILE}
                         --header-outfile=${ISPC_BUILD_DIR}/${ISPC_HEADER}
                         -o ${PROJECT_BINARY_DIR}/${ISPC_OBJECT}
-                        $<$<CONFIG:Debug>:-O0>
-                        $<$<CONFIG:Release>:-O2>
+                        ${ISPC_FLAGS}
                 DEPENDS ${ISPC_FILE}
         )
     endif (APPLE OR UNIX)
