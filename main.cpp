@@ -1,17 +1,16 @@
-#include <iostream>
-#include <cstring>
-#include <string>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
+#include <iostream>
+#include <string>
 
-#include "newton.h"
 #include "colours.h"
-#include "timing.h"
+#include "newton.h"
 #include "newton_cxx.h"
+#include "timing.h"
 
-void usage(const std::string& pname)
-{
-    std::cerr << "USAGE: " << pname  << " [--n=<value>]\n";
+void usage(const std::string &pname) {
+    std::cerr << "USAGE: " << pname << " [--n=<value>]\n";
     exit(EXIT_FAILURE);
 }
 
@@ -32,10 +31,7 @@ constexpr float Y_MAX = 2.5f;
 // --------------
 constexpr int TEST_ITERS = 3;
 
-void initRoots(const std::unique_ptr<float[]>& real,
-               const std::unique_ptr<float[]>& imag,
-               const int n_roots)
-{
+void initRoots(const std::unique_ptr<float[]> &real, const std::unique_ptr<float[]> &imag, const int n_roots) {
     for (int k = 0; k < n_roots; ++k) {
         const float angle = M_PI * 2.0f * k / n_roots;
         real[k] = cos(angle);
@@ -43,20 +39,13 @@ void initRoots(const std::unique_ptr<float[]>& real,
     }
 }
 
-void clearBuff(
-    std::unique_ptr<int[]>& iters,
-    std::unique_ptr<int[]>& found_roots )
-{
+void clearBuff(std::unique_ptr<int[]> &iters, std::unique_ptr<int[]> &found_roots) {
     iters.reset(new int[BUF_N]);
     found_roots.reset(new int[BUF_N]);
 }
 
-void writePPM(
-    const std::unique_ptr<int[]>& iters,
-    const std::unique_ptr<int[]>& found_roots,
-    const int size,
-    const std::string& fn)
-{
+void writePPM(const std::unique_ptr<int[]> &iters, const std::unique_ptr<int[]> &found_roots, const int size,
+              const std::string &fn) {
     std::ofstream ofs(fn, std::ios::binary);
     if (!ofs.is_open()) {
         throw std::runtime_error("Could not open file " + fn);
@@ -81,23 +70,20 @@ void writePPM(
 
 using namespace ispc;
 
-int main (const int argc, const char **argv) {
+int main(const int argc, const char **argv) {
     // ---------
     // Read args
     // ---------
     int n = -1;
     if (argc < 2) {
         n = 3;
-    }
-    else if (argc == 2) {
+    } else if (argc == 2) {
         if (strncmp(argv[1], "--n=", 4) == 0) {
             n = static_cast<int>(strtol(argv[1] + 4, nullptr, 10));
-        }
-        else {
+        } else {
             usage(argv[0]);
         }
-    }
-    else {
+    } else {
         usage(argv[0]);
     }
 
@@ -111,14 +97,14 @@ int main (const int argc, const char **argv) {
     for (int i = 0; i < TEST_ITERS; ++i) {
         clearBuff(iters, found_roots);
         reset_and_start_timer();
-        newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS,
-            iters.get(), found_roots.get(), real.get(), imag.get(), n);
+        newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters.get(), found_roots.get(), real.get(),
+                    imag.get(), n);
         const double dt = get_elapsed_mcycles();
         std::cout << "@time of ISPC run:\t\t\t[" << dt << "] million cycles\n";
         min_ISPC = std::min(min_ISPC, dt);
     }
 
-    std::cout << "@[newton ispc]:\t\t\t\t[" << min_ISPC << "] million cycles\n";
+    std::cout << "@newton ispc best:\t\t\t[" << min_ISPC << "] million cycles\n";
     writePPM(iters, found_roots, n, "newton.ppm");
 
     double min_serial = 1e30;
@@ -127,11 +113,11 @@ int main (const int argc, const char **argv) {
         reset_and_start_timer();
         newton_cxx(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters, found_roots, real, imag, n);
         const double dt = get_elapsed_mcycles();
-        std::cout << "@time of serial run:\t\t\t[" << dt << "] million cycles\n";
+        std::cout << "@time of serial run:\t\t[" << dt << "] million cycles\n";
         min_serial = std::min(min_serial, dt);
     }
 
-    std::cout << "@[newton serial]:\t\t\t\t[" << min_serial << "] million cycles\n";
+    std::cout << "@newton serial best:\t\t[" << min_serial << "] million cycles\n";
     writePPM(iters, found_roots, n, "newton_serial.ppm");
 
     std::cout << "\n\t\t\t\t(" << min_serial / min_ISPC << "x speedup from ISPC)\n";
