@@ -9,13 +9,15 @@
 
 void usage(const std::string& pname)
 {
-    std::cerr << "USAGE: " << pname  << "[--n=<value>]\n";
+    std::cerr << "USAGE: " << pname  << " [--n=<value>]\n";
     exit(EXIT_FAILURE);
 }
-const std::string argOpt = "--n=";
 
-constexpr int WIDTH = 600;
-constexpr int HEIGHT = 600;
+// --------
+// Settings
+// --------
+constexpr int WIDTH = 1024;
+constexpr int HEIGHT = 1024;
 constexpr int BUF_N = WIDTH * HEIGHT;
 constexpr int MAX_ITERS = 64;
 constexpr float X_MIN = -2.5f;
@@ -70,8 +72,11 @@ int main (const int argc, const char **argv) {
         n = 5;
     }
     else if (argc == 2) {
-        if (strncmp(argv[1], argOpt.c_str(), argOpt.size()) == 0) {
-            n = static_cast<int>(strtol(argv[1] + argOpt.size(), nullptr, 10));
+        if (strncmp(argv[1], "--n=", 4) == 0) {
+            n = static_cast<int>(strtol(argv[1] + 4, nullptr, 10));
+        }
+        else {
+            usage(argv[0]);
         }
     }
     else {
