@@ -22,7 +22,7 @@ static inline Complex Func(Complex z, int n) {
 }
 
 static inline Complex Deriv(Complex z, int n) {
-    return n * c_pow(z, n - 1);
+    return c_mul(c_pow(z, n - 1), n);
 }
 
 static inline void newton( varying float re, varying float im,

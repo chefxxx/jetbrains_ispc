@@ -20,7 +20,7 @@ static inline Complex c_pow(Complex z, int n) {
 
 static inline Complex c_div(Complex z1, Complex z2) {
     Complex res;
-    float denominator = (z1.im * z1.im + z2.im + z2.im)
+    float denominator = (z1.im * z1.im + z2.im + z2.im);
     res.re = (z1.re * z2.re + z1.im * z2.im) / denominator;
     res.im = (z1.im * z2.re - z1.re * z2.im) / denominator;
     return res;
@@ -30,5 +30,13 @@ static inline Complex c_sub(Complex z1, Complex z2) {
     Complex res;
     res.re = z1.re - z2.re;
     res.im = z1.im - z2.im;
+    return res;
+}
+
+static inline Complex c_mul(Complex z, int n)
+{
+    Complex res;
+    res.re = z.re * n;
+    res.im = z.im * n;
     return res;
 }
