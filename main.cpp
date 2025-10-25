@@ -30,7 +30,7 @@ constexpr float Y_MAX = 2.5f;
 // --------------
 // Tests settings
 // --------------
-//constexpr int TEST_ITERS = 3;
+constexpr int TEST_ITERS = 3;
 
 void initRoots(const std::unique_ptr<float[]>& real,
                const std::unique_ptr<float[]>& imag,
@@ -107,35 +107,33 @@ int main (const int argc, const char **argv) {
     std::unique_ptr<int[]> iters;
     std::unique_ptr<int[]> found_roots;
 
-    // double min_ISPC = 1e30;
-    // for (int i = 0; i < TEST_ITERS; ++i) {
-    //     clearBuff(iters, found_roots);
-    //     reset_and_start_timer();
-    //     newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS,
-    //         iters.get(), found_roots.get(), real.get(), imag.get(), n);
-    //     const double dt = get_elapsed_mcycles();
-    //     std::cout << "@time of ISPC run:\t\t\t[" << dt << "] million cycles\n";
-    //     min_ISPC = std::min(min_ISPC, dt);
-    // }
-    //
-    // std::cout << "@[newton ispc]:\t\t\t\t[" << min_ISPC << "] million cycles\n";
-    // writePPM(iters, found_roots, n, "newton.ppm");
+    double min_ISPC = 1e30;
+    for (int i = 0; i < TEST_ITERS; ++i) {
+        clearBuff(iters, found_roots);
+        reset_and_start_timer();
+        newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS,
+            iters.get(), found_roots.get(), real.get(), imag.get(), n);
+        const double dt = get_elapsed_mcycles();
+        std::cout << "@time of ISPC run:\t\t\t[" << dt << "] million cycles\n";
+        min_ISPC = std::min(min_ISPC, dt);
+    }
 
-    // double min_serial = 1e30;
-    // for (int i = 0; i < TEST_ITERS; ++i) {
-    //     clearBuff(iters, found_roots);
-    //     reset_and_start_timer();
-    //     newton_cxx(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters, found_roots, real, imag, n);
-    //     const double dt = get_elapsed_mcycles();
-    //     std::cout << "@time of serial run:\t\t\t[" << dt << "] million cycles\n";
-    //     min_serial = std::min(min_serial, dt);
-    // }
+    std::cout << "@[newton ispc]:\t\t\t\t[" << min_ISPC << "] million cycles\n";
+    writePPM(iters, found_roots, n, "newton.ppm");
 
-    clearBuff(iters, found_roots);
-    newton_cxx(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters, found_roots, real, imag, n);
-    //std::cout << "@[newton serial]:\t\t\t\t[" << min_serial << "] million cycles\n";
+    double min_serial = 1e30;
+    for (int i = 0; i < TEST_ITERS; ++i) {
+        clearBuff(iters, found_roots);
+        reset_and_start_timer();
+        newton_cxx(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters, found_roots, real, imag, n);
+        const double dt = get_elapsed_mcycles();
+        std::cout << "@time of serial run:\t\t\t[" << dt << "] million cycles\n";
+        min_serial = std::min(min_serial, dt);
+    }
+
+    std::cout << "@[newton serial]:\t\t\t\t[" << min_serial << "] million cycles\n";
     writePPM(iters, found_roots, n, "newton_serial.ppm");
 
-    //std::cout << "\n\n\t\t\t\t(" << min_serial / min_ISPC << "x speedup from ISPC)\n";
+    std::cout << "\n\t\t\t\t(" << min_serial / min_ISPC << "x speedup from ISPC)\n";
     return EXIT_SUCCESS;
 }
