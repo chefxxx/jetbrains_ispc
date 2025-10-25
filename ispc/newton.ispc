@@ -51,13 +51,13 @@ export void newton_ispc( uniform float x_min, uniform float y_min,
                          uniform float real[], uniform float imag[],
                          uniform int n_roots )
 {
-    float dx = (x_max - x_min) / WIDTH;
-    float dy = (y_max - y_min) / HEIGHT;
+    float dx = (x_max - x_min) / (float)WIDTH;
+    float dy = (y_max - y_min) / (float)HEIGHT;
 
     for (uniform int j = 0; j < HEIGHT; j++) {
         foreach (i = 0 ... WIDTH) {
-            float x = x_min + i * dx;
-            float y = y_min + j * dy;
+            float x = x_min + (float)i * dx;
+            float y = y_min + (float)j * dy;
 
             /* x - real part, y - imaginary part */
             int idx = j * WIDTH + i;
