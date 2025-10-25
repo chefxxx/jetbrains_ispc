@@ -6,6 +6,7 @@
 
 #include "newton.h"
 #include "colours.h"
+#include "timing.h"
 
 void usage(const std::string& pname)
 {
@@ -13,9 +14,9 @@ void usage(const std::string& pname)
     exit(EXIT_FAILURE);
 }
 
-// --------
-// Settings
-// --------
+// ----------------
+// Fractal settings
+// ----------------
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 1024;
 constexpr int BUF_N = WIDTH * HEIGHT;
@@ -25,12 +26,28 @@ constexpr float X_MAX = 2.5f;
 constexpr float Y_MIN = -2.5f;
 constexpr float Y_MAX = 2.5f;
 
-void initRoots(const ispc::Roots* ptr) {
-    for (int k = 0; k < ptr->size; ++k) {
-        const float angle = M_PI * 2.0f * k / ptr->size;
-        ptr->real[k] = cos(angle);
-        ptr->imag[k] = sin(angle);
+// --------------
+// Tests settings
+// --------------
+constexpr int TEST_ITERS = 3;
+
+void initRoots(const std::unique_ptr<float[]>& real,
+               const std::unique_ptr<float[]>& imag,
+               const int n_roots)
+{
+    for (int k = 0; k < n_roots; ++k) {
+        const float angle = M_PI * 2.0f * k / n_roots;
+        real[k] = cos(angle);
+        imag[k] = sin(angle);
     }
+}
+
+void clearBuff(
+    std::unique_ptr<int[]>& iters,
+    std::unique_ptr<int[]>& found_roots )
+{
+    iters.reset(new int[BUF_N]);
+    found_roots.reset(new int[BUF_N]);
 }
 
 void writePPM(
@@ -69,7 +86,7 @@ int main (const int argc, const char **argv) {
     // ---------
     int n = -1;
     if (argc < 2) {
-        n = 5;
+        n = 3;
     }
     else if (argc == 2) {
         if (strncmp(argv[1], "--n=", 4) == 0) {
@@ -85,17 +102,22 @@ int main (const int argc, const char **argv) {
 
     const std::unique_ptr<float[]> imag(new float[n]);
     const std::unique_ptr<float[]> real(new float[n]);
-    Roots roots{};
-    roots.imag = imag.get();
-    roots.real = real.get();
-    roots.size = n;
-    initRoots(&roots);
+    initRoots(real, imag, n);
+    std::unique_ptr<int[]> iters;
+    std::unique_ptr<int[]> found_roots;
 
-    const std::unique_ptr<int[]> iters(new int[BUF_N]);
-    const std::unique_ptr<int[]> found_roots(new int[BUF_N]);
+    double minISPC = 1e30;
+    for (int i = 0; i < TEST_ITERS; ++i) {
+        clearBuff(iters, found_roots);
+        reset_and_start_timer();
+        newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS,
+            iters.get(), found_roots.get(), real.get(), imag.get(), n);
+        const double dt = get_elapsed_mcycles();
+        std::cout << "@time of ISPC run:\t\t\t[" << dt << "] million cycles\n";
+        minISPC = std::min(minISPC, dt);
+    }
 
-    newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters.get(), found_roots.get(), roots);
-
+    std::cout << "[newton ispc]:\t\t\t\t[" << minISPC << "] million cycles\n";
     writePPM(iters, found_roots, n, "newton.ppm");
     return EXIT_SUCCESS;
 }

@@ -4,12 +4,6 @@
 
 #include "complex.ispc"
 
-struct Roots {
-    float* real;
-    float* imag;
-    int size;
-};
-
 static inline Complex Func(Complex z, int n) {
     Complex tmp = c_pow(z, n);
     tmp.re -= 1;
@@ -23,17 +17,18 @@ static inline Complex Deriv(Complex z, int n) {
 static inline void newton( varying float re, varying float im,
                            uniform int MAX_ITERS, varying int IDX,
                            uniform int iters[], uniform int found_roots[],
-                           uniform Roots& roots )
+                           uniform float real[], uniform float imag[],
+                           uniform int n_roots )
 {
     Complex z = make_complex(re, im);
 
     for (int iter = 0; iter < MAX_ITERS; ++iter) {
-        Complex tmp = c_div(Func(z, roots.size), Deriv(z, roots.size));
+        Complex tmp = c_div(Func(z, n_roots), Deriv(z, n_roots));
         z = c_sub(z, tmp);
 
         float tol = 0.000001;
-        for (int i = 0; i < roots.size; ++i) {
-            Complex tmp_root = make_complex(roots.real[i], roots.imag[i]);
+        for (int i = 0; i < n_roots; ++i) {
+            Complex tmp_root = make_complex(real[i], imag[i]);
             Complex diff = c_sub(z, tmp_root);
             if (abs(diff.re) < tol && abs(diff.im) < tol)
             {
@@ -45,7 +40,7 @@ static inline void newton( varying float re, varying float im,
     }
 
     iters[IDX] = 0;
-    found_roots[IDX] = roots.size;
+    found_roots[IDX] = n_roots;
 }
 
 export void newton_ispc( uniform float x_min, uniform float y_min,
@@ -53,7 +48,8 @@ export void newton_ispc( uniform float x_min, uniform float y_min,
                          uniform int WIDTH, uniform int HEIGHT,
                          uniform int MAX_ITERS,
                          uniform int iters[], uniform int found_roots[],
-                         uniform Roots& roots )
+                         uniform float real[], uniform float imag[],
+                         uniform int n_roots )
 {
     float dx = (x_max - x_min) / WIDTH;
     float dy = (y_max - y_min) / HEIGHT;
@@ -65,7 +61,7 @@ export void newton_ispc( uniform float x_min, uniform float y_min,
 
             /* x - real part, y - imaginary part */
             int idx = j * WIDTH + i;
-            newton(x, y, MAX_ITERS, idx, iters, found_roots, roots);
+            newton(x, y, MAX_ITERS, idx, iters, found_roots, real, imag, n_roots);
         }
     }
 }
