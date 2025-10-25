@@ -7,7 +7,6 @@
 
 #include "newton.h"
 
-#define ERR(source) (perror(source), fprintf(stderr, "%s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE))
 void usage(const char *pname)
 {
     fprintf(stderr, "USAGE:%s [--n=<value>]\n", pname);
@@ -15,8 +14,8 @@ void usage(const char *pname)
 }
 const std::string argOpt = "--n=";
 
-constexpr int WIDTH = 1024;
-constexpr int HEIGHT = 1024;
+constexpr int WIDTH = 24;
+constexpr int HEIGHT = 24;
 constexpr int BUF_N = WIDTH * HEIGHT;
 constexpr int MAX_ITERS = 256;
 constexpr float X_MIN = -2.5f;
@@ -51,16 +50,24 @@ int main (const int argc, const char **argv) {
         usage(argv[0]);
     }
 
-    const std::unique_ptr<int[]> buf(new int[BUF_N]);
+    const std::unique_ptr<float[]> imag(new float[n]);
+    const std::unique_ptr<float[]> real(new float[n]);
     Roots roots{};
-    roots.imag = new float[n];
-    roots.real = new float[n];
+    roots.imag = imag.get();
+    roots.real = real.get();
     roots.size = n;
     initRoots(&roots);
 
-    newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, roots ,buf.get());
+    const std::unique_ptr<int[]> iters(new int[BUF_N]);
+    const std::unique_ptr<int[]> idx(new int[BUF_N]);
+    Result result{};
+    result.iters = iters.get();
+    result.found_roots = idx.get();
 
-    delete[] roots.real;
-    delete[] roots.imag;
+    newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, roots , result);
+
+    for (int i = 0; i < BUF_N; ++i) {
+        std::cout << iters[i] << "\n";
+    }
     return EXIT_SUCCESS;
 }
