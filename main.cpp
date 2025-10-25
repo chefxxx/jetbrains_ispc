@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "newton.h"
+#include "colours.h"
 
 void usage(const std::string& pname)
 {
@@ -13,14 +14,14 @@ void usage(const std::string& pname)
 }
 const std::string argOpt = "--n=";
 
-constexpr int WIDTH = 1024;
-constexpr int HEIGHT = 1024;
+constexpr int WIDTH = 600;
+constexpr int HEIGHT = 600;
 constexpr int BUF_N = WIDTH * HEIGHT;
-constexpr int MAX_ITERS = 128;
+constexpr int MAX_ITERS = 64;
 constexpr float X_MIN = -2.5f;
-constexpr float X_MAX = 1.0f;
-constexpr float Y_MIN = -2.0f;
-constexpr float Y_MAX = 1.0f;
+constexpr float X_MAX = 2.5f;
+constexpr float Y_MIN = -2.5f;
+constexpr float Y_MAX = 2.5f;
 
 void initRoots(const ispc::Roots* ptr) {
     for (int k = 0; k < ptr->size; ++k) {
@@ -30,7 +31,7 @@ void initRoots(const ispc::Roots* ptr) {
     }
 }
 
-void writePMM(
+void writePPM(
     const std::unique_ptr<int[]>& iters,
     const std::unique_ptr<int[]>& found_roots,
     const int size,
@@ -38,14 +39,24 @@ void writePMM(
 {
     std::ofstream ofs(fn, std::ios::binary);
     if (!ofs.is_open()) {
-        std::cerr << "Could not open file " << fn << " for writing.\n";
+        throw std::runtime_error("Could not open file " + fn);
     }
 
     ofs << "P6\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
     for (int i = 0; i < BUF_N; ++i) {
-        const float t = static_cast<float>(found_roots[i]) / static_cast<float>(size);
-        const float brightness = 1.0f - static_cast<float>(iters[i]) / static_cast<float>(MAX_ITERS);
+        RGB c = {0, 0, 0};
+
+        if (found_roots[i] < size) {
+            const float H = static_cast<float>(found_roots[i]) / static_cast<float>(size);
+            const float V = 1.0f - static_cast<float>(iters[i]) / static_cast<float>(MAX_ITERS);
+            c = HSVtoRGB(H, 1.0f, V);
+        }
+        ofs.put(static_cast<char>(c.r));
+        ofs.put(static_cast<char>(c.g));
+        ofs.put(static_cast<char>(c.b));
     }
+
+    std::cout << "Wrote image file " << fn << '\n';
 }
 
 using namespace ispc;
@@ -56,11 +67,11 @@ int main (const int argc, const char **argv) {
     // ---------
     int n = -1;
     if (argc < 2) {
-        n = 3;
+        n = 5;
     }
     else if (argc == 2) {
         if (strncmp(argv[1], argOpt.c_str(), argOpt.size()) == 0) {
-            n = static_cast<int>(strtol(argOpt.c_str() + argOpt.size(), nullptr, 10));
+            n = static_cast<int>(strtol(argv[1] + argOpt.size(), nullptr, 10));
         }
     }
     else {
@@ -77,11 +88,9 @@ int main (const int argc, const char **argv) {
 
     const std::unique_ptr<int[]> iters(new int[BUF_N]);
     const std::unique_ptr<int[]> found_roots(new int[BUF_N]);
-    Result result{};
-    result.iters = iters.get();
-    result.found_roots = found_roots.get();
 
-    newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, roots , result);
+    newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters.get(), found_roots.get(), roots);
 
+    writePPM(iters, found_roots, n, "newton.ppm");
     return EXIT_SUCCESS;
 }

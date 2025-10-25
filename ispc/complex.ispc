@@ -28,9 +28,16 @@ static inline Complex c_pow(Complex z, int n) {
 
 static inline Complex c_div(Complex z1, Complex z2) {
     Complex res;
-    float denominator = (z1.im * z1.im + z2.im + z2.im);
-    res.re = (z1.re * z2.re + z1.im * z2.im) / denominator;
-    res.im = (z1.im * z2.re - z1.re * z2.im) / denominator;
+    float denominator = z2.re * z2.re + z2.im * z2.im;
+
+    // Check for division by zero to avoid generating NaNs
+    if (denominator < 0.000001f) {
+        res.re = 0.f;
+        res.im = 0.f;
+    } else {
+        res.re = (z1.re * z2.re + z1.im * z2.im) / denominator;
+        res.im = (z1.im * z2.re - z1.re * z2.im) / denominator;
+    }
     return res;
 }
 

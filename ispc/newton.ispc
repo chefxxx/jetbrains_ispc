@@ -10,11 +10,6 @@ struct Roots {
     int size;
 };
 
-struct Result {
-    int *iters;
-    int *found_roots;
-};
-
 static inline Complex Func(Complex z, int n) {
     Complex tmp = c_pow(z, n);
     tmp.re -= 1;
@@ -27,7 +22,8 @@ static inline Complex Deriv(Complex z, int n) {
 
 static inline void newton( varying float re, varying float im,
                            uniform int MAX_ITERS, varying int IDX,
-                           uniform Result& result, uniform Roots& roots )
+                           uniform int iters[], uniform int found_roots[],
+                           uniform Roots& roots )
 {
     Complex z = make_complex(re, im);
 
@@ -41,23 +37,23 @@ static inline void newton( varying float re, varying float im,
             Complex diff = c_sub(z, tmp_root);
             if (abs(diff.re) < tol && abs(diff.im) < tol)
             {
-                result.iters[IDX] = iter;
-                result.found_roots[IDX] = i;
+                iters[IDX] = iter;
+                found_roots[IDX] = i;
                 return;
             }
         }
-
-        result.iters[IDX] = MAX_ITERS;
-        result.found_roots[IDX] = roots.size;
     }
+
+    iters[IDX] = 0;
+    found_roots[IDX] = roots.size;
 }
 
 export void newton_ispc( uniform float x_min, uniform float y_min,
                          uniform float x_max, uniform float y_max,
                          uniform int WIDTH, uniform int HEIGHT,
                          uniform int MAX_ITERS,
-                         uniform Roots& roots,
-                         uniform Result& result )
+                         uniform int iters[], uniform int found_roots[],
+                         uniform Roots& roots )
 {
     float dx = (x_max - x_min) / WIDTH;
     float dy = (y_max - y_min) / HEIGHT;
@@ -69,7 +65,7 @@ export void newton_ispc( uniform float x_min, uniform float y_min,
 
             /* x - real part, y - imaginary part */
             int idx = j * WIDTH + i;
-            newton(x, y, MAX_ITERS, idx, result, roots);
+            newton(x, y, MAX_ITERS, idx, iters, found_roots, roots);
         }
     }
 }
