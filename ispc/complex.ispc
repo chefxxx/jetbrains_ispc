@@ -7,6 +7,14 @@ struct Complex {
     float im;
 };
 
+static inline Complex make_complex(float x, float y)
+{
+    Complex res;
+    res.re = x;
+    res.im = y;
+    return res;
+}
+
 static inline Complex c_pow(Complex z, int n) {
     float r = sqrt(z.re * z.re + z.im * z.im);
     float theta = atan2(z.im, z.re);

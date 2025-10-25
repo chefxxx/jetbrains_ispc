@@ -59,15 +59,12 @@ int main (const int argc, const char **argv) {
     initRoots(&roots);
 
     const std::unique_ptr<int[]> iters(new int[BUF_N]);
-    const std::unique_ptr<int[]> idx(new int[BUF_N]);
+    const std::unique_ptr<int[]> found_roots(new int[BUF_N]);
     Result result{};
     result.iters = iters.get();
-    result.found_roots = idx.get();
+    result.found_roots = found_roots.get();
 
     newton_ispc(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, roots , result);
 
-    for (int i = 0; i < BUF_N; ++i) {
-        std::cout << iters[i] << "\n";
-    }
     return EXIT_SUCCESS;
 }

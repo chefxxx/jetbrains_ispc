@@ -29,13 +29,26 @@ static inline void newton( varying float re, varying float im,
                            uniform int MAX_ITERS, varying int IDX,
                            uniform Result& result, uniform Roots& roots )
 {
-    Complex z;
-    z.re = re;
-    z.im = im;
+    Complex z = make_complex(re, im);
 
-    for (int i = 0; i < MAX_ITERS; ++i) {
+    for (int iter = 0; iter < MAX_ITERS; ++iter) {
         Complex tmp = c_div(Func(z, roots.size), Deriv(z, roots.size));
+        z = c_sub(z, tmp);
 
+        float tol = 0.000001;
+        for (int i = 0; i < roots.size; ++i) {
+            Complex tmp_root = make_complex(roots.real[i], roots.imag[i]);
+            Complex diff = c_sub(z, tmp_root);
+            if (abs(diff.re) < tol && abs(diff.im) < tol)
+            {
+                result.iters[IDX] = iter;
+                result.found_roots[IDX] = i;
+                return;
+            }
+        }
+
+        result.iters[IDX] = MAX_ITERS;
+        result.found_roots[IDX] = roots.size;
     }
 }
 
