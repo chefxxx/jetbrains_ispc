@@ -1,23 +1,22 @@
 #include <iostream>
-#include <cmath>
 #include <cstring>
-#include <memory>
 #include <string>
 #include <cstdlib>
+#include <fstream>
 
 #include "newton.h"
 
-void usage(const char *pname)
+void usage(const std::string& pname)
 {
-    fprintf(stderr, "USAGE:%s [--n=<value>]\n", pname);
+    std::cerr << "USAGE: " << pname  << "[--n=<value>]\n";
     exit(EXIT_FAILURE);
 }
 const std::string argOpt = "--n=";
 
-constexpr int WIDTH = 24;
-constexpr int HEIGHT = 24;
+constexpr int WIDTH = 1024;
+constexpr int HEIGHT = 1024;
 constexpr int BUF_N = WIDTH * HEIGHT;
-constexpr int MAX_ITERS = 256;
+constexpr int MAX_ITERS = 128;
 constexpr float X_MIN = -2.5f;
 constexpr float X_MAX = 1.0f;
 constexpr float Y_MIN = -2.0f;
@@ -28,6 +27,24 @@ void initRoots(const ispc::Roots* ptr) {
         const float angle = M_PI * 2.0f * k / ptr->size;
         ptr->real[k] = cos(angle);
         ptr->imag[k] = sin(angle);
+    }
+}
+
+void writePMM(
+    const std::unique_ptr<int[]>& iters,
+    const std::unique_ptr<int[]>& found_roots,
+    const int size,
+    const std::string& fn)
+{
+    std::ofstream ofs(fn, std::ios::binary);
+    if (!ofs.is_open()) {
+        std::cerr << "Could not open file " << fn << " for writing.\n";
+    }
+
+    ofs << "P6\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
+    for (int i = 0; i < BUF_N; ++i) {
+        const float t = static_cast<float>(found_roots[i]) / static_cast<float>(size);
+        const float brightness = 1.0f - static_cast<float>(iters[i]) / static_cast<float>(MAX_ITERS);
     }
 }
 
