@@ -1,4 +1,4 @@
-# ISPC Newton fractal
+# ❄️ ISPC Newton fractal
 
 This repository demonstrates how to generate a **Newton fractal** using both **serial C++ code** and an **ISPC
 (Intel SPMD Program Compiler)** implementation, and then **measure performance differences** between the two approaches.  
@@ -63,7 +63,7 @@ Here is the top-level layout and what each part does:
   Contains headers shared across the project, including `timing.h`.
 
 
-## Building & Running in CLion
+## 🛠️ Building & Running in CLion
 
 Thanks to the integrated CMake configuration:
 
