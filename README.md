@@ -12,7 +12,6 @@ This repository demonstrates how to generate a **Newton fractal** using both **s
 - [Building & Running in CLion](#building--running-in-clion)
 - [License](#License)
 
----
 
 ## Overview
 
@@ -20,7 +19,6 @@ This repository demonstrates how to generate a **Newton fractal** using both **s
 - From CLion, you simply click **Run** or **Debug**, and everything — C++ and ISPC — builds and executes.
 - There is an additional header, `timing.h`, included for measuring execution time. (This was adapted from Intel’s sample code.)
 
----
 
 ## Prerequisites
 
@@ -33,7 +31,6 @@ Before building, ensure you have:
 
 If ISPC is not in your `PATH`, you may need to adjust the CMake variables (e.g. `ISPC_EXECUTABLE`) to point to it.
 
----
 
 ## Repository Structure
 
@@ -65,7 +62,6 @@ Here is the top-level layout and what each part does:
 - **include/**  
   Contains headers shared across the project, including `timing.h`.
 
----
 
 ## Building & Running in CLion
 
