@@ -1,5 +1,5 @@
 /*
-    Created by chefxxx on 24.10.2025.
+    Created by Mateusz Mikiciuk on 24.10.2025.
 */
 
 #include "complex.ispc"
@@ -22,12 +22,12 @@ static inline void newton( varying float re, varying float im,
 {
     Complex z = make_complex(re, im);
 
-    for (int iter = 0; iter < MAX_ITERS; ++iter) {
+    for (uniform int iter = 0; iter < MAX_ITERS; ++iter) {
         Complex tmp = c_div(Func(z, n_roots), Deriv(z, n_roots));
         z = c_sub(z, tmp);
 
         float tol = 0.000001;
-        for (int i = 0; i < n_roots; ++i) {
+        for (uniform int i = 0; i < n_roots; ++i) {
             Complex tmp_root = make_complex(real[i], imag[i]);
             Complex diff = c_sub(z, tmp_root);
             if (abs(diff.re) < tol && abs(diff.im) < tol)

@@ -1,5 +1,5 @@
 /*
-    Created by chefxxx on 25.10.2025.
+    Created by Mateusz Mikiciuk on 25.10.2025.
 */
 
 struct Complex {
