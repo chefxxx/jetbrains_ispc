@@ -10,9 +10,7 @@ This repository demonstrates how to generate a **Newton fractal** using both **s
 - [Prerequisites](#prerequisites)
 - [Repository Structure](#repository-structure)
 - [Building & Running in CLion](#building--running-in-clion)
-- [Benchmarking / Timing Support](#benchmarking--timing-support)
-- [Notes & Limitations](#notes--limitations)
-- [License / Attribution](#license--attribution)
+- [License](#License)
 
 ---
 
@@ -92,3 +90,7 @@ cmake ..
 cmake --build .
 ./newton_frac
 ```
+
+## 📑 License
+
+This project is licensed under GPL-3.0 license. See the [LICENSE](LICENSE) file for the full license text.
