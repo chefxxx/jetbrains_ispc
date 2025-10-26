@@ -1,8 +1,9 @@
 # ❄️ ISPC Newton fractal
 
-This repository demonstrates how to generate a **Newton fractal** using both **serial C++ code** and an **ISPC
-(Intel SPMD Program Compiler)** implementation, and then **measure performance differences** between the two approaches.  
+This repository demonstrates how to generate a **Newton fractal** using both **serial C++ code** and two **ISPC (Intel SPMD Program Compiler)** implementations:
 
+- A **standard ISPC version** using straightforward SPMD parallelism.
+- A **tasks-based ISPC version** (`newton_tasks.ispc`) that utilizes ISPC’s task system for better parallel scaling on multi-core CPUs.
 
 ## Table of Contents
 
@@ -15,10 +16,18 @@ This repository demonstrates how to generate a **Newton fractal** using both **s
 
 ## Overview
 
-- The CMake configuration handles compiling `.ispc` files, linking them appropriately, and exposing targets you can run.
-- From CLion, you simply click **Run** or **Debug**, and everything — C++ and ISPC — builds and executes.
-- There is an additional header, `timing.h`, included for measuring execution time. (This was adapted from Intel’s sample code.)
+This project compares three implementations of Newton fractal generation:
 
+1. **Serial C++ implementation** — a straightforward CPU version.
+2. **ISPC SPMD version** — uses ISPC for data-parallel computation.
+3. **ISPC tasks version** — leverages ISPC’s task model for multi-core execution.
+
+Execution times are measured using the included `timing.h` header (adapted from Intel’s ISPC samples).  
+The provided CMake configuration handles all necessary compilation and linking automatically:
+
+- Compiles `.ispc` files into object code and integrates them with C++.
+- Supports both standard and task-based ISPC variants.
+- Generates targets you can run directly from **CLion**.
 
 ## Prerequisites
 
@@ -39,28 +48,33 @@ Here is the top-level layout and what each part does:
 /
 ├── CMakeLists.txt
 ├── main.cpp
+├── tasksys.cpp
 ├── ispc/
-│ ├── newton.ispc
-│ └── complex.ispc
 └── include/
-  ├── timing.h
-  ├── colours.h
-  └── newton_cxx.h
 ```
 
 ### Key Components
 
 - **CMakeLists.txt**  
-  Handles automatic ISPC compilation, linking, and build target setup.
+  Handles automatic ISPC compilation, linking, and C++/ISPC target setup.
 
-- **mian.cpp**  
-  C++ source file, main entry point.
+- **main.cpp**  
+  Entry point for the application; coordinates and runs the serial and ISPC fractal versions.
+
+- **tasksys.cpp**  
+  Provides a simple thread pool / task system required by ISPC’s `launch` and task-based execution model (incorporated Intel samples file).
 
 - **ispc/**  
-  Stores `.ispc` files with the parallel ISPC implementation.
+  Contains ISPC source files:
+  - `newton.ispc`: baseline ISPC version.
+  - `newton_tasks.ispc`: enhanced version using ISPC tasks.
+  - `complex.ispc`: helper functions for complex arithmetic.
 
 - **include/**  
-  Contains headers shared across the project, including `timing.h`.
+  Header files shared across the project:
+  - `timing.h`: timing and benchmarking utilities (from Intel samples).
+  - `colours.h`: defines RGB palette logic.
+  - `newton_cxx.h`: declares C++ wrappers and interfaces for ISPC functions.
 
 
 ## 🛠️ Building & Running in CLion
