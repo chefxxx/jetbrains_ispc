@@ -10,7 +10,7 @@ This repository demonstrates how to generate a **Newton fractal** using both **s
 - [Prerequisites](#prerequisites)
 - [Repository Structure](#repository-structure)
 - [Building & Running in CLion](#building--running-in-clion)
-- [License](#License)
+- [License](#-license)
 
 
 ## Overview
