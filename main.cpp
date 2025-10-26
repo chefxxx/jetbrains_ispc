@@ -124,7 +124,8 @@ int main(const int argc, const char **argv) {
     for (int i = 0; i < TEST_ITERS; ++i) {
         clearBuff(iters, found_roots);
         reset_and_start_timer();
-        newton_ispc_tasks(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters.get(), found_roots.get(), real.get(), imag.get(), n);
+        newton_ispc_tasks(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters.get(), found_roots.get(),
+                          real.get(), imag.get(), n);
         const double dt = get_elapsed_mcycles();
         std::cout << "@time of ISPC tasks run:\t[" << dt << "] million cycles\n";
         min_ISPC_tasks = std::min(min_ISPC_tasks, dt);
