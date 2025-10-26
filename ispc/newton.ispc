@@ -2,6 +2,9 @@
     Created by Mateusz Mikiciuk on 24.10.2025.
 */
 
+#ifndef NEWTON_ISPC
+#define NEWTON_ISPC
+
 #include "complex.ispc"
 
 static inline Complex Func(Complex z, int n) {
@@ -98,3 +101,5 @@ export void newton_ispc( uniform float x_min, uniform float y_min,
         newton(x, y, MAX_ITERS, idx, iters, found_roots, real, imag, n_roots);
     }
 }
+
+#endif // NEWTON_ISPC

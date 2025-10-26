@@ -3,7 +3,7 @@
 This repository demonstrates how to generate a **Newton fractal** using both **serial C++ code** and two **ISPC (Intel SPMD Program Compiler)** implementations:
 
 - A **standard ISPC version** using straightforward SPMD parallelism.
-- A **tasks-based ISPC version** (`newton_tasks.ispc`) that utilizes ISPC’s task system for better parallel scaling on multi-core CPUs.
+- A **tasks-based ISPC version** that utilizes ISPC’s task system for better parallel scaling on multi-core CPUs.
 
 ## Table of Contents
 
@@ -67,7 +67,6 @@ Here is the top-level layout and what each part does:
 - **ispc/**  
   Contains ISPC source files:
   - `newton.ispc`: baseline ISPC version.
-  - `newton_tasks.ispc`: enhanced version using ISPC tasks.
   - `complex.ispc`: helper functions for complex arithmetic.
 
 - **include/**  
