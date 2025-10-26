@@ -74,7 +74,7 @@ Here is the top-level layout and what each part does:
   Header files shared across the project:
   - `timing.h`: timing and benchmarking utilities (from Intel samples).
   - `colours.h`: defines RGB palette logic.
-  - `newton_cxx.h`: declares C++ wrappers and interfaces for ISPC functions.
+  - `newton_cxx.h`: C++ serial version.
 
 
 ## 🛠️ Building & Running in CLion
