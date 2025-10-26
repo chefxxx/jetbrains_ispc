@@ -100,6 +100,34 @@ cmake --build .
 ./newton_frac
 ```
 
+## 📊 Results
+
+The program was run with different implementations (serial C++, ISPC, and ISPC tasks) and generated output images (`.ppm`). Performance was measured in **million CPU cycles**, and speedups were calculated relative to the serial version.
+
+### Example Run: n = 71
+
+| Implementation      | Best Time (million cycles) | Speedup vs Serial |
+|--------------------|----------------------------|-----------------|
+| Serial C++         | 8803.99                    | 1.0x            |
+| ISPC               | 1804.09                    | 4.88x           |
+| ISPC Tasks         | 357.078                    | 24.66x          |
+
+### Example Run: n = 7
+
+| Implementation      | Best Time (million cycles) | Speedup vs Serial |
+|--------------------|----------------------------|-----------------|
+| Serial C++         | 1230.53                    | 1.0x            |
+| ISPC               | 231.4                      | 5.32x           |
+| ISPC Tasks         | 42.8896                    | 28.69x          |
+
+---
+
+### Sample Generated Fractal
+
+Below is an example of the Newton fractal (n = 5) produced by the program:
+
+![Newton Fractal](images/newton_tasks.jpg)
+
 ## 📑 License
 
 This project is licensed under GPL-3.0 license. See the [LICENSE](LICENSE) file for the full license text.

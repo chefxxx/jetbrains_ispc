@@ -126,11 +126,11 @@ int main(const int argc, const char **argv) {
         reset_and_start_timer();
         newton_ispc_tasks(X_MIN, Y_MIN, X_MAX, Y_MAX, WIDTH, HEIGHT, MAX_ITERS, iters.get(), found_roots.get(), real.get(), imag.get(), n);
         const double dt = get_elapsed_mcycles();
-        std::cout << "@time of ISPC tasks run:\t\t[" << dt << "] million cycles\n";
+        std::cout << "@time of ISPC tasks run:\t[" << dt << "] million cycles\n";
         min_ISPC_tasks = std::min(min_ISPC_tasks, dt);
     }
 
-    std::cout << "@newton ISPC tasks best:\t\t[" << min_ISPC_tasks << "] million cycles\n";
+    std::cout << "@newton ISPC tasks best:\t[" << min_ISPC_tasks << "] million cycles\n";
     writePPM(iters, found_roots, n, "newton_tasks.ppm");
 
     std::cout << "\n\t\t\t\t(" << min_serial / min_ISPC << "x speedup from ISPC)\n";
