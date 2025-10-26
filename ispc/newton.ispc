@@ -43,6 +43,41 @@ static inline void newton( varying float re, varying float im,
     found_roots[IDX] = n_roots;
 }
 
+inline task void newton_scanline( uniform float x_min, uniform float y_min,
+                                  uniform float x_max, uniform float y_max,
+                                  uniform int WIDTH, uniform int HEIGHT,
+                                  uniform int MAX_ITERS,
+                                  uniform int iters[], uniform int found_roots[],
+                                  uniform float real[], uniform float imag[],
+                                  uniform int n_roots,
+                                  uniform float dx, uniform float dy, uniform int span )
+{
+    uniform int y_start = taskIndex * span;
+    uniform int y_end = min((taskIndex + 1) * span, (uniform unsigned int)HEIGHT);
+
+    foreach (yi = y_start ... y_end, xi = 0 ... WIDTH) {
+        float x = x_min + (float)xi * dx;
+        float y = y_min + (float)yi * dy;
+
+        int idx = yi * WIDTH + xi;
+        newton(x, y, MAX_ITERS, idx, iters, found_roots, real, imag, n_roots);
+    }
+}
+
+export void newton_ispc_tasks( uniform float x_min, uniform float y_min,
+                               uniform float x_max, uniform float y_max,
+                               uniform int WIDTH, uniform int HEIGHT,
+                               uniform int MAX_ITERS,
+                               uniform int iters[], uniform int found_roots[],
+                               uniform float real[], uniform float imag[],
+                               uniform int n_roots )
+{
+        uniform float dx = (x_max - x_min) / (float)WIDTH;
+        uniform float dy = (y_max - y_min) / (float)HEIGHT;
+        uniform int span = 4;
+        launch [HEIGHT/span] newton_scanline(x_min, y_min, x_max, y_max, WIDTH, HEIGHT, MAX_ITERS, iters, found_roots, real, imag, n_roots, dx, dy, span);
+}
+
 export void newton_ispc( uniform float x_min, uniform float y_min,
                          uniform float x_max, uniform float y_max,
                          uniform int WIDTH, uniform int HEIGHT,
@@ -51,8 +86,8 @@ export void newton_ispc( uniform float x_min, uniform float y_min,
                          uniform float real[], uniform float imag[],
                          uniform int n_roots )
 {
-    float dx = (x_max - x_min) / (float)WIDTH;
-    float dy = (y_max - y_min) / (float)HEIGHT;
+    uniform float dx = (x_max - x_min) / (float)WIDTH;
+    uniform float dy = (y_max - y_min) / (float)HEIGHT;
 
     foreach (i = 0 ... WIDTH, j = 0 ... HEIGHT) {
         float x = x_min + (float)i * dx;

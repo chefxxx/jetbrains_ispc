@@ -80,7 +80,7 @@ target_include_directories(${ISPC_LIB} PUBLIC ${ISPC_BUILD_DIR})
 #                           Define exec and link                                 #
 # ------------------------------------------------------------------------------ #
 
-add_executable(${EXEC_NAME} main.cpp)
+add_executable(${EXEC_NAME} main.cpp tasksys.cpp)
 add_dependencies(${EXEC_NAME} ${ISPC_LIB})
 target_link_libraries(${EXEC_NAME} PUBLIC ${ISPC_LIB})
 target_include_directories(${EXEC_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
