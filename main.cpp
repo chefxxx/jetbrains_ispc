@@ -20,7 +20,7 @@ void usage(const std::string &pname) {
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 1024;
 constexpr int BUF_N = WIDTH * HEIGHT;
-constexpr int MAX_ITERS = 64;
+constexpr int MAX_ITERS = 32;
 constexpr float X_MIN = -2.5f;
 constexpr float X_MAX = 2.5f;
 constexpr float Y_MIN = -2.5f;
