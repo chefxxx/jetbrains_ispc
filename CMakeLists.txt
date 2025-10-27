@@ -18,14 +18,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------------------ #
 
 if (APPLE OR UNIX)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(ISPC_FLAGS -O0 --math-lib=default --pic)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=undefined,address -O0 -Wall -Wextra -pedantic -Werror")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address,undefined")
-    else()
+    elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
         set(ISPC_FLAGS -O2 --math-lib=fast --pic)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -funroll-loops")
-    endif()
+    endif ()
 endif (APPLE OR UNIX)
 
 # ------------------------------------------------------------------------------ #

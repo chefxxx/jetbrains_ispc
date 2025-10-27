@@ -39,7 +39,7 @@ Before building, ensure you have:
 3. **CMake** (minimum version requirement as defined in `CMakeLists.txt`).
 4. (Optional) CLion or another IDE that supports CMake — but you can also build from the command line.
 
-If ISPC is not in your `PATH`, you may need to adjust the CMake variables (e.g. `ISPC_EXECUTABLE`) to point to it.
+If ISPC is not in your `PATH`, you may need to adjust the CMake (and/or CLion environment) variables (e.g. `ISPC_EXECUTABLE`) to point to it.
 
 
 ## Repository Structure

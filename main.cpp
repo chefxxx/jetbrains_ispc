@@ -105,7 +105,7 @@ int main(const int argc, const char **argv) {
     }
 
     std::cout << "@newton ispc best:\t\t\t[" << min_ISPC << "] million cycles\n";
-    writePPM(iters, found_roots, n, "newton.ppm");
+    writePPM(iters, found_roots, n, "../images/newton.ppm");
 
     double min_serial = 1e30;
     for (int i = 0; i < TEST_ITERS; ++i) {
@@ -118,7 +118,7 @@ int main(const int argc, const char **argv) {
     }
 
     std::cout << "@newton serial best:\t\t[" << min_serial << "] million cycles\n";
-    writePPM(iters, found_roots, n, "newton_serial.ppm");
+    writePPM(iters, found_roots, n, "../images/newton_serial.ppm");
 
     double min_ISPC_tasks = 1e30;
     for (int i = 0; i < TEST_ITERS; ++i) {
@@ -132,7 +132,7 @@ int main(const int argc, const char **argv) {
     }
 
     std::cout << "@newton ISPC tasks best:\t[" << min_ISPC_tasks << "] million cycles\n";
-    writePPM(iters, found_roots, n, "newton_tasks.ppm");
+    writePPM(iters, found_roots, n, "../images/newton_tasks.ppm");
 
     std::cout << "\n\t\t\t\t(" << min_serial / min_ISPC << "x speedup from ISPC)\n";
     std::cout << "\n\t\t\t\t(" << min_serial / min_ISPC_tasks << "x speedup from ISPC tasks)\n";
