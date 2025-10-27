@@ -6,6 +6,7 @@
 #define NEWTON_CXX_H
 
 #include <complex>
+#include <memory>
 
 inline std::complex<float> Func(const std::complex<float> &z, const int n) {
     return std::pow(z, static_cast<float>(n)) - std::complex(1.0f, 0.0f);

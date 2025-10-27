@@ -5,6 +5,9 @@
 #ifndef COLOURS_H
 #define COLOURS_H
 
+#include <cstdint>
+#include <cmath>
+
 struct RGB {
     RGB(const int R, const int G, const int B) : r(R), g(G), b(B) {}
     uint8_t r, g, b;

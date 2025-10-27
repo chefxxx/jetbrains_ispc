@@ -103,7 +103,7 @@ cmake --build .
 
 ## 📊 Results
 
-The program was run with different implementations (serial C++, ISPC, and ISPC tasks) and generated output images (`.ppm`). Performance was measured in **million CPU cycles**, and speedups were calculated relative to the serial version.
+The program was run on MacBook M2 with different implementations (serial C++, ISPC, and ISPC tasks) and generated output images (`.ppm`). Performance was measured in **million CPU cycles**, and speedups were calculated relative to the serial version.
 
 ### Example Run: n = 71
 
